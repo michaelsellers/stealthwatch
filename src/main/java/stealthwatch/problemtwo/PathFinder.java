@@ -13,27 +13,27 @@ import stealthwatch.GNode;
 // to find out if it was a necessity, an oversight or a coding style difference.
 public class PathFinder {
 	public ArrayList<ArrayList<GNode>> paths(GNode node) {
-		List<ArrayList<GNode>> flattened = Arrays.stream(node.getChildren())
-			    .flatMap(PathFinder::addTo).map(list -> {
+		List<ArrayList<GNode>> nodePaths = Arrays.stream(node.getChildren())
+			    .flatMap(PathFinder::determinePath).map(list -> {
 					list.add(0, node); 
 					return list;
 				}).collect(Collectors.toList());
-		return new ArrayList<ArrayList<GNode>>(flattened);
+		return new ArrayList<ArrayList<GNode>>(nodePaths);
 	}
 
-	private static Stream<ArrayList<GNode>> addTo(GNode node) {
+	private static Stream<ArrayList<GNode>> determinePath(GNode node) {
 		ArrayList<ArrayList<GNode>> childPaths = new ArrayList<>();
 		Arrays.asList(node.getChildren()).forEach(child -> {
-			childPaths.addAll(addTo(child).collect(Collectors.toList()));
+			childPaths.addAll(determinePath(child).collect(Collectors.toList()));
 		});
-		List<List<ArrayList<GNode>>> collect = Arrays.stream(node.getChildren()).map(child -> addTo(child).collect(Collectors.toList())).collect(Collectors.toList());
-		// Arrays.stream(node.getChildren()).map(child ->
-		// childPaths.addAll(addTo(child)));
+		
+		// add list for each leaf
 		if (node.getChildren().length == 0) {
 			childPaths.add(new ArrayList<GNode>());
 		}
+		
+		// collect the nodes when returning up the stack
 		childPaths.forEach(path -> path.add(0, node));
-		// Arrays.stream(node.getChildren()).filter();
 		return childPaths.stream();
 	}
 }
